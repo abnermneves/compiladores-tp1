@@ -55,7 +55,7 @@ void writeTempFile(std::string opcode, int length, std::string line) {
 void passOne() {
     bool more_input = true;
     std::string line, symbol, literal, opcode; // provavelmente nao vai precisar do literal
-    int location_counter, length, value, type, numeric_code;
+    int location_counter, length, value, type; // por enquanto nao ta precisando de type
     int END_STATEMENT = -2; // provavelmente nao vai ser -2
 
     location_counter = 0;
