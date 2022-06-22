@@ -11,7 +11,7 @@ std::string removeComments(std::string line) {
 }
 
 std::string readNextLine() {
-    // retorna a próxima linha que não é vazia sem comentários
+    // remove comentários e retorna a próxima linha que não é vazia
     std::string line;
     std::getline(std::cin, line);
     line = removeComments(line);
@@ -24,14 +24,7 @@ std::string readNextLine() {
     return line;
 }
 
-void initializeTables() {
-    // ainda nao sei como vão ser as tabelas
-    // talvez só map mesmo, mas acho que a
-    // tabela de instruções vai precisar, 
-    // além do código numérico, do length também
-}
-
-std::string checkForSymbols(std::string line) {
+std::string checkForSymbol(std::string line) {
     // se tiver label, retorna o label
     // se não tiver, retorna ""
     std::string symbol;
@@ -73,6 +66,12 @@ void writeTempFile(std::string opcode, int length, std::string line) {
     // vamo ve
 }
 
+void printSymbolTable(std::map<std::string, int> table) {
+    for (auto it = table.begin(); it != table.end(); it++) {
+        std:: cout << it->first << " -> " << it->second << std::endl;
+    }
+}
+
 void passOne() {
     bool more_input = true;
     std::string line, symbol, literal, opcode; // provavelmente nao vai precisar do literal
@@ -80,16 +79,20 @@ void passOne() {
     int END_STATEMENT = -2; // provavelmente nao vai ser -2
 
     location_counter = 0;
-    initializeTables();
+    std::map<std::string, int> symbolTable;
+    // inicializar instructionTable, acho que vai precisar do codigo numerico do opcode e do length
 
     while (more_input) {
         length = 0;
-        line = readNextLine();
+        line = readNextLine(); // próxima linha sem comentários não vazia
 
-        symbol = checkForSymbols(line);
+        symbol = checkForSymbol(line);
         if (symbol != "") {
-            // std::cout << symbol << std::endl;
-            // enterNewSymbol(symbol, location_counter);
+            // adiciona símbolo na tabela de símbolos
+            // ainda precisa da instruction table pra atualizar o location_counter
+            // então por enquanto a localização tá tudo zerado
+            std::pair<std::string, int> symbol_pair (symbol, location_counter);
+            symbolTable.insert(symbol_pair);
         }
         /*
 
@@ -124,6 +127,7 @@ void passOne() {
             more_input = false;
         }
     }
+    // printSymbolTable(symbolTable);
 }
 
 int main () {
