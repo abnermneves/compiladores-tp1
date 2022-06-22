@@ -1,9 +1,27 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <regex>
+#include <map>
+
+std::string removeComments(std::string line) {
+    // se tiver, retira ; e o que vier depois
+    std::regex re("\\s*;.*");
+    return std::regex_replace(line, re, "");
+}
 
 std::string readNextLine() {
-    // se a linha for vazia, retorna a próxima que não é vazia
-    // separa a linha e identifica as partes
+    // retorna a próxima que não é vazia sem comentários
+    std::string line;
+    std::getline(std::cin, line);
+    line = removeComments(line);
+
+    while (line.size() == 0) {
+        std::getline(std::cin, line);
+        line = removeComments(line);
+    }
+
+    return line;
 }
 
 void initializeTables() {
@@ -11,11 +29,6 @@ void initializeTables() {
     // talvez só map mesmo, mas acho que a
     // tabela de instruções vai precisar, 
     // além do código numérico, do length também
-}
-
-std::string removeComments(std::string line) {
-    // retira ; e o que vier depois
-    // se tiver
 }
 
 std::string checkForSymbols(std::string line) {
@@ -63,10 +76,9 @@ void passOne() {
 
     while (more_input) {
         length = 0;
-
         line = readNextLine();
-        line = removeComments(line);
 
+        /*
         symbol = checkForSymbols(line);
         if (symbol != "") {
             enterNewSymbol(symbol, location_counter);
@@ -97,11 +109,16 @@ void passOne() {
         if (opcode == "END") {
             // mudar verificação pra tirar a string literal
             more_input = false;
+        }*/
+
+        if (line == "END") {
+            more_input = false;
         }
     }
 }
 
 int main () {
+    passOne();
 
     return 0;
 }
