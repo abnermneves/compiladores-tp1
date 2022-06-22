@@ -3,6 +3,7 @@
 #include <vector>
 #include <regex>
 #include <map>
+#include "util.cpp"
 
 std::string removeComments(std::string line) {
     // se tiver, retira ; e o que vier depois
@@ -13,15 +14,28 @@ std::string removeComments(std::string line) {
 std::string readNextLine() {
     // remove comentários e retorna a próxima linha que não é vazia
     std::string line;
-    std::getline(std::cin, line);
-    line = removeComments(line);
 
-    while (line.size() == 0) {
+    do {
         std::getline(std::cin, line);
         line = removeComments(line);
-    }
+    } while(line.size() == 0);
 
     return line;
+}
+
+std::vector<std::string> getTokens(std::string line) {
+    std::vector<std::string> tokens;
+    std::string delim = " ";
+    int start = 0;
+    int end = line.find(delim);
+
+    while (end != -1) {
+        tokens.push_back(line.substr(start, end - start));
+        start = end + delim.size();
+        end = line.find(delim, start);
+    }
+    
+    return tokens;
 }
 
 std::string checkForSymbol(std::string line) {
@@ -103,7 +117,7 @@ void passOne() {
 
         opcode = extractOpcode(line);
         if (opcode == "WORD" || opcode == "END") {
-            // verifia se é pseudoinstrução
+            // verifica se é pseudoinstrução
             // com certeza dá pra melhorar essa verificação
             // para não ficar essas strings avulsas
             // mas isso é só temporário
@@ -128,6 +142,41 @@ void passOne() {
         }
     }
     // printSymbolTable(symbolTable);
+}
+
+std::string passTwo(std::string code, std::map<std::string, int> tabela){
+    InstructionTable instTable = InstructionTable();
+    bool more_input = true;         // flag that stops pass two
+    std::string line, output = "";               // fields of the instruction
+    int ilc;                        // misc. variables
+    const int END_STATEMENT = -2;   // signals end of input
+
+    ilc = 0; // assemble first instruction at 0
+
+    while (more_input) { // more input set to false by END
+        
+        line = readNextLine();
+        std::vector<std::string> tokens = getTokens(line); // TODO: Checar meio de separar os tokens
+        std::string oper = tokens[0];
+        Instruction instruction = instTable.getInstruction(oper);
+        
+        ilc += instruction.getSize(); // update loc ctr
+        
+        if (instruction.getOpCode() != END_STATEMENT) {
+            if (instruction.getIsPseudo()){
+                if (instruction.getSize() == 1)
+                    output += tokens[1];
+            } else {
+                output += std::to_string(instruction.getOpCode());
+
+                if (instruction.getSize() > 1)
+                    output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endereço baseado na tabela gerada no passo 1
+            }
+            output += " ";
+        } else 
+            more_input = false;
+
+    }
 }
 
 int main () {
