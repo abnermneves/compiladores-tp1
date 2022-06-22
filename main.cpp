@@ -11,7 +11,7 @@ std::string removeComments(std::string line) {
 }
 
 std::string readNextLine() {
-    // retorna a próxima que não é vazia sem comentários
+    // retorna a próxima linha que não é vazia sem comentários
     std::string line;
     std::getline(std::cin, line);
     line = removeComments(line);
@@ -32,9 +32,17 @@ void initializeTables() {
 }
 
 std::string checkForSymbols(std::string line) {
-    // verifica se tem um label
-    // se tiver, retorna o label
+    // se tiver label, retorna o label
     // se não tiver, retorna ""
+    std::string symbol;
+    int colon_idx = line.find(":");
+
+    if (colon_idx == std::string::npos) {
+        return "";
+    }
+
+    symbol = line.substr(0, colon_idx);
+    return symbol;
 }
 
 std::string checkForLiteral(std::string linha) {
@@ -78,11 +86,12 @@ void passOne() {
         length = 0;
         line = readNextLine();
 
-        /*
         symbol = checkForSymbols(line);
         if (symbol != "") {
-            enterNewSymbol(symbol, location_counter);
+            // std::cout << symbol << std::endl;
+            // enterNewSymbol(symbol, location_counter);
         }
+        /*
 
         literal = checkForLiteral(line);
         if (literal != "") {
