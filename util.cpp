@@ -13,6 +13,10 @@ class Instruction{
     bool isPseudo;
 
     public:
+        Instruction(){
+            
+        }
+
         Instruction(int8_t opCode, uint8_t size, bool isPseudo) {
             this->opCode = opCode;
             this->size = size;
