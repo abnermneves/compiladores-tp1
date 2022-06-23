@@ -59,16 +59,15 @@ std::string checkForLiteral(std::string linha) {
     // ou o quê? nullptr? NULL? não lembro a diferença
 }
 
-void enterNewSymbol(std::string symbol, int location_counter) {
-
-}
-
 void enterNewLiteral(std::string literal) {
 
 }
 
-std::string extractOpcode(std::string line) {
+std::string extractOperator(std::string line) {
+    auto tokens = getTokens(line);
+    bool isThereLabel = line.find(":") != std::string::npos;
 
+    return isThereLabel ? tokens[1] : tokens[0];
 }
 
 int getInstructionLength(std::string opcode) {
@@ -88,9 +87,9 @@ void printSymbolTable(std::map<std::string, int> table) {
 
 void passOne() {
     bool more_input = true;
-    std::string line, symbol, literal, opcode; // provavelmente nao vai precisar do literal
+    std::string line, symbol, literal, instOperator; // provavelmente nao vai precisar do literal
     int location_counter, length, value, type; // por enquanto nao ta precisando de type
-    int END_STATEMENT = -2; // provavelmente nao vai ser -2
+    int END_STATEMENT = -2;
 
     location_counter = 0;
     std::map<std::string, int> symbolTable;
@@ -114,9 +113,13 @@ void passOne() {
         if (literal != "") {
             enterNewLiteral(literal);
         }
+        */
 
-        opcode = extractOpcode(line);
-        if (opcode == "WORD" || opcode == "END") {
+        instOperator = extractOperator(line);
+        std::cout << line << std::endl << instOperator << std::endl;
+        
+        /*
+        if (instOperator == "WORD" || instOperator == "END") {
             // verifica se é pseudoinstrução
             // com certeza dá pra melhorar essa verificação
             // para não ficar essas strings avulsas
@@ -126,13 +129,13 @@ void passOne() {
             // de uma tabela de pseudoinstruções, nem da variável type
         }
 
-        length = getInstructionLength(opcode);
+        length = getInstructionLength(instOperator);
 
-        writeTempFile(opcode, length, line);
+        writeTempFile(instOperator, length, line);
 
         location_counter += length;
 
-        if (opcode == "END") {
+        if (instOperator == "END") {
             // mudar verificação pra tirar a string literal
             more_input = false;
         }*/
@@ -177,6 +180,8 @@ std::string passTwo(std::string code, std::map<std::string, int> tabela){
             more_input = false;
 
     }
+
+    return "";
 }
 
 int main () {
