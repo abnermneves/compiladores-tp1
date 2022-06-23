@@ -147,7 +147,6 @@ void passOne() {
         location_counter += length;
         
         if (inst.getOpCode() == END_STATEMENT) {
-            // mudar verifica��o pra tirar a string literal
             more_input = false;
         }
     }
@@ -227,6 +226,6 @@ int main () {
     passOne();
     std::string program = passTwo();
     std::string output = CABECALHO + " " + std::to_string(ENDERECO_INICIAL) + " " + std::to_string(PILHA_INICIAl) + " " + std::to_string(programSize) + " " + program;
-    cout << output;
+    std::cout << output;
     return 0;
 }

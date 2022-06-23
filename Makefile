@@ -5,7 +5,7 @@ tp1: main.o
 	g++ -Wall -o tp1 main.o
 
 clean:
-	rm *.exe
+	rm -r -f *.exe *.o
 
 main.o: util.o main.cpp
 	g++ -Wall -c $^ -o $@
