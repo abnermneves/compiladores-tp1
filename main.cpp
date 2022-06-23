@@ -118,8 +118,8 @@ void printSymbolTable(std::map<std::string, int> table) {
 
 void passOne() {
     bool more_input = true;
-    std::string line, symbol, literal, instOperator; // provavelmente nao vai precisar do literal
-    int location_counter, length, value, type; // por enquanto nao ta precisando de type
+    std::string line, symbol, instOperator;
+    int location_counter, length;
     int END_STATEMENT = -2;
     location_counter = 0;
     // Instruction table j� inicializada globalmente
@@ -169,7 +169,7 @@ std::string getNextLine() {
     tempFile = tempFile.substr(pos + 1);
 
     // Retira espaços do inicio e final da linha
-    int start, end;
+    unsigned int start, end;
     for(start = 0; start < line.size(); start++){
         if(line[start] != ' ')
             break;
