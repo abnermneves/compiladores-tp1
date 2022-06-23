@@ -3,7 +3,7 @@
 #include <vector>
 #include <regex>
 #include <map>
-#include "util.cpp"
+// #include "util.cpp"
 
 std::string removeComments(std::string line) {
     // se tiver, retira ; e o que vier depois
@@ -64,10 +64,26 @@ void enterNewLiteral(std::string literal) {
 }
 
 std::string extractOperator(std::string line) {
-    auto tokens = getTokens(line);
-    bool isThereLabel = line.find(":") != std::string::npos;
+    int colon_idx, start, end;
+    colon_idx = line.find(":");
 
-    return isThereLabel ? tokens[1] : tokens[0];
+    start = 0;
+    if (colon_idx != std::string::npos) {
+        start = colon_idx + 1;
+
+    }
+
+    // ignora espaços antes do operador
+    for (int i = start; line[i] == ' '; i++) {
+        start++;
+    }
+
+    end = line.find(" ", start);
+    if (end == std::string::npos) {
+        end = line.size();
+    }
+
+    return line.substr(start, end - start);
 }
 
 int getInstructionLength(std::string opcode) {
@@ -116,7 +132,7 @@ void passOne() {
         */
 
         instOperator = extractOperator(line);
-        std::cout << line << std::endl << instOperator << std::endl;
+        // std::cout << line << std::endl << instOperator << '$' << std::endl;
         
         /*
         if (instOperator == "WORD" || instOperator == "END") {
@@ -147,42 +163,40 @@ void passOne() {
     // printSymbolTable(symbolTable);
 }
 
-std::string passTwo(std::string code, std::map<std::string, int> tabela){
-    InstructionTable instTable = InstructionTable();
-    bool more_input = true;         // flag that stops pass two
-    std::string line, output = "";               // fields of the instruction
-    int ilc;                        // misc. variables
-    const int END_STATEMENT = -2;   // signals end of input
+// std::string passTwo(std::string code, std::map<std::string, int> tabela){
+//     InstructionTable instTable = InstructionTable();
+//     bool more_input = true;         // flag that stops pass two
+//     std::string line, output = "";               // fields of the instruction
+//     int ilc;                        // misc. variables
+//     const int END_STATEMENT = -2;   // signals end of input
 
-    ilc = 0; // assemble first instruction at 0
+//     ilc = 0; // assemble first instruction at 0
 
-    while (more_input) { // more input set to false by END
+//     while (more_input) { // more input set to false by END
         
-        line = readNextLine();
-        std::vector<std::string> tokens = getTokens(line); // TODO: Checar meio de separar os tokens
-        std::string oper = tokens[0];
-        Instruction instruction = instTable.getInstruction(oper);
+//         line = readNextLine();
+//         std::vector<std::string> tokens = getTokens(line); // TODO: Checar meio de separar os tokens
+//         std::string oper = tokens[0];
+//         Instruction instruction = instTable.getInstruction(oper);
         
-        ilc += instruction.getSize(); // update loc ctr
+//         ilc += instruction.getSize(); // update loc ctr
         
-        if (instruction.getOpCode() != END_STATEMENT) {
-            if (instruction.getIsPseudo()){
-                if (instruction.getSize() == 1)
-                    output += tokens[1];
-            } else {
-                output += std::to_string(instruction.getOpCode());
+//         if (instruction.getOpCode() != END_STATEMENT) {
+//             if (instruction.getIsPseudo()){
+//                 if (instruction.getSize() == 1)
+//                     output += tokens[1];
+//             } else {
+//                 output += std::to_string(instruction.getOpCode());
 
-                if (instruction.getSize() > 1)
-                    output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endereço baseado na tabela gerada no passo 1
-            }
-            output += " ";
-        } else 
-            more_input = false;
+//                 if (instruction.getSize() > 1)
+//                     output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endereço baseado na tabela gerada no passo 1
+//             }
+//             output += " ";
+//         } else 
+//             more_input = false;
 
-    }
-
-    return "";
-}
+//     }
+// }
 
 int main () {
     passOne();
