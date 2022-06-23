@@ -37,7 +37,7 @@ std::vector<std::string> getTokens(std::string line) {
     std::vector<std::string> tokens;
     std::string delim = " ";
     int start = 0;
-    int end = line.find(delim);
+    unsigned int end = line.find(delim);
     int size = line.size();
 
     while (end != std::string::npos) {
@@ -59,7 +59,7 @@ std::string checkForSymbol(std::string line) {
     // se tiver label, retorna o label
     // se n�o tiver, retorna ""
     std::string symbol;
-    int colon_idx = line.find(":");
+    unsigned int colon_idx = line.find(":");
 
     if (colon_idx == std::string::npos) {
         return "";
@@ -70,7 +70,7 @@ std::string checkForSymbol(std::string line) {
 }
 
 std::string extractOperator(std::string line) {
-    int colon_idx, start, end;
+    unsigned int colon_idx, start, end;
     colon_idx = line.find(":");
 
     start = 0;
