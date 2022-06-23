@@ -3,7 +3,13 @@
 #include <vector>
 #include <regex>
 #include <map>
-// #include "util.cpp"
+#include "util.cpp"
+
+// Declarando estaticamente por conveni�ncia (para faer lookup em fun��es fora do escopo do main sem precisar redeclarar a tabela localmente)
+InstructionTable table = InstructionTable();
+// O tempFile, que vai ser usado no passo 2, vai ser declarado globalmente, assim como a tabela de s�mbolos, para facilitar o reuso
+std::string tempFile;
+std::map<std::string, int> symbolTable;
 
 std::string removeComments(std::string line) {
     // se tiver, retira ; e o que vier depois
@@ -12,7 +18,7 @@ std::string removeComments(std::string line) {
 }
 
 std::string readNextLine() {
-    // remove comentários e retorna a próxima linha que não é vazia
+    // remove coment�rios e retorna a pr�xima linha que n�o � vazia
     std::string line;
 
     do {
@@ -40,7 +46,7 @@ std::vector<std::string> getTokens(std::string line) {
 
 std::string checkForSymbol(std::string line) {
     // se tiver label, retorna o label
-    // se não tiver, retorna ""
+    // se n�o tiver, retorna ""
     std::string symbol;
     int colon_idx = line.find(":");
 
@@ -52,16 +58,16 @@ std::string checkForSymbol(std::string line) {
     return symbol;
 }
 
-std::string checkForLiteral(std::string linha) {
+/*std::string checkForLiteral(std::string linha) {
     // procura literais na linha
     // se tiver, retorna o literal
     // se nao tiver, retorna ""
-    // ou o quê? nullptr? NULL? não lembro a diferença
+    // ou o qu�? nullptr? NULL? n�o lembro a diferen�a
 }
 
 void enterNewLiteral(std::string literal) {
 
-}
+}*/
 
 std::string extractOperator(std::string line) {
     int colon_idx, start, end;
@@ -73,7 +79,7 @@ std::string extractOperator(std::string line) {
 
     }
 
-    // ignora espaços antes do operador
+    // ignora espa�os antes do operador
     for (int i = start; line[i] == ' '; i++) {
         start++;
     }
@@ -87,12 +93,23 @@ std::string extractOperator(std::string line) {
 }
 
 int getInstructionLength(std::string opcode) {
-
+	Instruction inst = table.getInstruction(opcode);
+	//std::cout << inst.getSize();
+	return inst.getSize();
 }
 
-void writeTempFile(std::string opcode, int length, std::string line) {
-    // acho que talvez nao precise desse método
+std::string labelRemover(std::string line){
+	std::size_t pos = line.find(":");
+	if(pos != std::string::npos)
+		line = line.substr(pos+2);
+	return line;
+}
+
+void writeTempFile(std::string *tempFile, std::string opcode, int length, std::string line) {
+    // acho que talvez nao precise desse m�todo
     // vamo ve
+    line = labelRemover(line);
+    *tempFile = *tempFile + std::to_string(length) + " " + line + "\n";
 }
 
 void printSymbolTable(std::map<std::string, int> table) {
@@ -106,25 +123,21 @@ void passOne() {
     std::string line, symbol, literal, instOperator; // provavelmente nao vai precisar do literal
     int location_counter, length, value, type; // por enquanto nao ta precisando de type
     int END_STATEMENT = -2;
-
     location_counter = 0;
     std::map<std::string, int> symbolTable;
-    // inicializar instructionTable, acho que vai precisar do codigo numerico do opcode e do length
+    // Instruction table j� inicializada globalmente
 
     while (more_input) {
         length = 0;
-        line = readNextLine(); // próxima linha sem comentários não vazia
+        line = readNextLine(); // pr�xima linha sem coment�rios n�o vazia
 
         symbol = checkForSymbol(line);
         if (symbol != "") {
-            // adiciona símbolo na tabela de símbolos
-            // ainda precisa da instruction table pra atualizar o location_counter
-            // então por enquanto a localização tá tudo zerado
+            // adiciona s�mbolo na tabela de s�mbolos
             std::pair<std::string, int> symbol_pair (symbol, location_counter);
             symbolTable.insert(symbol_pair);
         }
         /*
-
         literal = checkForLiteral(line);
         if (literal != "") {
             enterNewLiteral(literal);
@@ -134,33 +147,24 @@ void passOne() {
         instOperator = extractOperator(line);
         // std::cout << line << std::endl << instOperator << '$' << std::endl;
         
-        /*
-        if (instOperator == "WORD" || instOperator == "END") {
-            // verifica se é pseudoinstrução
-            // com certeza dá pra melhorar essa verificação
-            // para não ficar essas strings avulsas
-            // mas isso é só temporário
-
-            // como só tem word e end, acho que não vai precisar
-            // de uma tabela de pseudoinstruções, nem da variável type
-        }
-
-        length = getInstructionLength(instOperator);
-
-        writeTempFile(instOperator, length, line);
-
+        Instruction inst = table.getInstruction(instOperator);
+        if(inst.getIsPseudo()){
+        	//Realmente precisa fazer algo? N�o h� necessidade de verifica��o de tipo e a diferen�a de uso da mem�ria j� � indicada na tabela de instru��es
+		}
+		
+		length = getInstructionLength(instOperator);
+		writeTempFile(&tempFile, instOperator, length, line);
         location_counter += length;
-
         if (instOperator == "END") {
-            // mudar verificação pra tirar a string literal
-            more_input = false;
-        }*/
-
-        if (line == "END") {
+            // mudar verifica��o pra tirar a string literal
             more_input = false;
         }
     }
-    // printSymbolTable(symbolTable);
+    
+    std::cout << "Symbol table:" << std::endl;
+	printSymbolTable(symbolTable);
+    std::cout << "tempFile:" << std::endl;
+    std::cout << tempFile;
 }
 
 // std::string passTwo(std::string code, std::map<std::string, int> tabela){
@@ -189,7 +193,7 @@ void passOne() {
 //                 output += std::to_string(instruction.getOpCode());
 
 //                 if (instruction.getSize() > 1)
-//                     output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endereço baseado na tabela gerada no passo 1
+//                     output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endere�o baseado na tabela gerada no passo 1
 //             }
 //             output += " ";
 //         } else 

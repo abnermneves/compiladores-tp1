@@ -1,15 +1,10 @@
-#ifndef UTIL
-#define UTIL
-
 #include <iostream>
 #include <string>
 #include <map>
 
-using namespace std;
-
 class Instruction{
-    int8_t opCode;
-    uint8_t size;
+    int opCode;
+    int size;
     bool isPseudo;
 
     public:
@@ -17,21 +12,24 @@ class Instruction{
             
         }
 
-        Instruction(int8_t opCode, uint8_t size, bool isPseudo) {
+        //Instruction(int8_t opCode, uint8_t size, bool isPseudo) {
+        Instruction(int opCode, int size, bool isPseudo) {
             this->opCode = opCode;
             this->size = size;
             this->isPseudo = isPseudo;
         }
 
-        int8_t getOpCode() {return opCode;}
-        uint8_t getSize() {return size;}
+        //int8_t getOpCode() {return opCode;}
+        int getOpCode() {return opCode;}
+        //uint8_t getSize() {return size;}
+        int getSize() {return size;}
         bool getIsPseudo() {return isPseudo;}
 
 };
 
 class InstructionTable {
     private:
-        map<string, Instruction> instructionTable;
+        std::map<std::string, Instruction> instructionTable;
     
     public:
         InstructionTable() {
@@ -55,9 +53,8 @@ class InstructionTable {
             instructionTable["END"] = Instruction(-2, 0, true);
         }
 
-        Instruction getInstruction(string label){
+        Instruction getInstruction(std::string label){
             return instructionTable[label];
         }
 };
 
-#endif
