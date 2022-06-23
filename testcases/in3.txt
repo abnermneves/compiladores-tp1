@@ -3,30 +3,30 @@ READ A
 
 
 READ B
-LOAD A ; comentários ablublubelbe
+     LOAD A ; comentários ablublubelbe
 STORE C
 
-SUB B
-JPG L
+  SUB B
+    JPG L
 
 
 
 ;vela
 
-LOAD B ; sim nao
+      LOAD B ; sim nao
 STORE C
-L: WRITE A ; é
+L:      WRITE A ; é
 
 
 
 
 WRITE B;aham
 WRITE C;talvvez
-HALT
+     HALT
 
 A: WORD 0
-B: WORD 0;vamo la
-C: WORD 0; ok entao
+B:       WORD 0;vamo la
+C:     WORD 0; ok entao
 
 
 
