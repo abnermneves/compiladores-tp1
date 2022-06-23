@@ -3,7 +3,17 @@
 #include <vector>
 #include <regex>
 #include <map>
-// #include "util.cpp"
+#include "util.cpp"
+
+const std::string CABECALHO = "MV1";
+const int ENDERECO_INICIAL = 0;
+const int PILHA_INICIAl = 999;
+// Declarando estaticamente por conveni�ncia (para faer lookup em fun��es fora do escopo do main sem precisar redeclarar a tabela localmente)
+InstructionTable table = InstructionTable();
+// O tempFile, que vai ser usado no passo 2, vai ser declarado globalmente, assim como a tabela de s�mbolos, para facilitar o reuso
+std::string tempFile;
+std::map<std::string, int> symbolTable;
+int programSize;
 
 std::string removeComments(std::string line) {
     // se tiver, retira ; e o que vier depois
@@ -12,7 +22,7 @@ std::string removeComments(std::string line) {
 }
 
 std::string readNextLine() {
-    // remove comentários e retorna a próxima linha que não é vazia
+    // remove coment�rios e retorna a pr�xima linha que n�o � vazia
     std::string line;
 
     do {
@@ -28,19 +38,26 @@ std::vector<std::string> getTokens(std::string line) {
     std::string delim = " ";
     int start = 0;
     int end = line.find(delim);
+    int size = line.size();
 
-    while (end != -1) {
-        tokens.push_back(line.substr(start, end - start));
+    while (end != std::string::npos) {
+        tokens.push_back(line.substr(start, (end - start)));
         start = end + delim.size();
+
+        // Pula todos os espaços entre as palavras
+        if(start + 1 < size && line[start+1] == ' ')
+            start++;
         end = line.find(delim, start);
     }
-    
+
+    tokens.push_back(line.substr(start));
+
     return tokens;
 }
 
 std::string checkForSymbol(std::string line) {
     // se tiver label, retorna o label
-    // se não tiver, retorna ""
+    // se n�o tiver, retorna ""
     std::string symbol;
     int colon_idx = line.find(":");
 
@@ -50,17 +67,6 @@ std::string checkForSymbol(std::string line) {
 
     symbol = line.substr(0, colon_idx);
     return symbol;
-}
-
-std::string checkForLiteral(std::string linha) {
-    // procura literais na linha
-    // se tiver, retorna o literal
-    // se nao tiver, retorna ""
-    // ou o quê? nullptr? NULL? não lembro a diferença
-}
-
-void enterNewLiteral(std::string literal) {
-
 }
 
 std::string extractOperator(std::string line) {
@@ -73,7 +79,7 @@ std::string extractOperator(std::string line) {
 
     }
 
-    // ignora espaços antes do operador
+    // ignora espa�os antes do operador
     for (int i = start; line[i] == ' '; i++) {
         start++;
     }
@@ -87,12 +93,21 @@ std::string extractOperator(std::string line) {
 }
 
 int getInstructionLength(std::string opcode) {
-
+	Instruction inst = table.getInstruction(opcode);
+	
+	return inst.getSize();
 }
 
-void writeTempFile(std::string opcode, int length, std::string line) {
-    // acho que talvez nao precise desse método
-    // vamo ve
+std::string labelRemover(std::string line){
+	std::size_t pos = line.find(":");
+	if(pos != std::string::npos)
+		line = line.substr(pos+2);
+	return line;
+}
+
+void writeTempFile(std::string *tempFile, std::string opcode, int length, std::string line) {
+    line = labelRemover(line);
+    *tempFile = *tempFile + std::to_string(length) + " " + line + "\n";
 }
 
 void printSymbolTable(std::map<std::string, int> table) {
@@ -106,100 +121,112 @@ void passOne() {
     std::string line, symbol, literal, instOperator; // provavelmente nao vai precisar do literal
     int location_counter, length, value, type; // por enquanto nao ta precisando de type
     int END_STATEMENT = -2;
-
     location_counter = 0;
-    std::map<std::string, int> symbolTable;
-    // inicializar instructionTable, acho que vai precisar do codigo numerico do opcode e do length
+    // Instruction table j� inicializada globalmente
 
     while (more_input) {
         length = 0;
-        line = readNextLine(); // próxima linha sem comentários não vazia
+        line = readNextLine(); // pr�xima linha sem coment�rios n�o vazia
 
         symbol = checkForSymbol(line);
         if (symbol != "") {
-            // adiciona símbolo na tabela de símbolos
-            // ainda precisa da instruction table pra atualizar o location_counter
-            // então por enquanto a localização tá tudo zerado
+            // adiciona s�mbolo na tabela de s�mbolos
             std::pair<std::string, int> symbol_pair (symbol, location_counter);
             symbolTable.insert(symbol_pair);
         }
-        /*
-
-        literal = checkForLiteral(line);
-        if (literal != "") {
-            enterNewLiteral(literal);
-        }
-        */
 
         instOperator = extractOperator(line);
-        // std::cout << line << std::endl << instOperator << '$' << std::endl;
         
-        /*
-        if (instOperator == "WORD" || instOperator == "END") {
-            // verifica se é pseudoinstrução
-            // com certeza dá pra melhorar essa verificação
-            // para não ficar essas strings avulsas
-            // mas isso é só temporário
-
-            // como só tem word e end, acho que não vai precisar
-            // de uma tabela de pseudoinstruções, nem da variável type
-        }
-
-        length = getInstructionLength(instOperator);
-
-        writeTempFile(instOperator, length, line);
-
+        Instruction inst = table.getInstruction(instOperator);
+        if(inst.getIsPseudo()){
+        	//Realmente precisa fazer algo? N�o h� necessidade de verifica��o de tipo e a diferen�a de uso da mem�ria j� � indicada na tabela de instru��es
+		}
+		
+		length = getInstructionLength(instOperator);
+		writeTempFile(&tempFile, instOperator, length, line);
         location_counter += length;
-
-        if (instOperator == "END") {
-            // mudar verificação pra tirar a string literal
-            more_input = false;
-        }*/
-
-        if (line == "END") {
+        
+        if (inst.getOpCode() == END_STATEMENT) {
+            // mudar verifica��o pra tirar a string literal
             more_input = false;
         }
     }
-    // printSymbolTable(symbolTable);
 }
 
-// std::string passTwo(std::string code, std::map<std::string, int> tabela){
-//     InstructionTable instTable = InstructionTable();
-//     bool more_input = true;         // flag that stops pass two
-//     std::string line, output = "";               // fields of the instruction
-//     int ilc;                        // misc. variables
-//     const int END_STATEMENT = -2;   // signals end of input
 
-//     ilc = 0; // assemble first instruction at 0
+// Retorna tamanho da instrucao e retira essa informacao do tempFile
+int getSize() {
+    int pos = tempFile.find(" ");
+    std::string strSize = tempFile.substr(0, pos);
+    tempFile = tempFile.substr(pos + 1);
 
-//     while (more_input) { // more input set to false by END
+    return std::stoi(strSize);
+}
+
+// Retorna e remove a primeira linha do tempFile
+std::string getNextLine() {
+    int pos = tempFile.find("\n");
+    std::string line = tempFile.substr(0, pos);
+    tempFile = tempFile.substr(pos + 1);
+
+    // Retira espaços do inicio e final da linha
+    int start, end;
+    for(start = 0; start < line.size(); start++){
+        if(line[start] != ' ')
+            break;
+    }
+    
+    for(end = line.size() - 1; end >= 0; end--){
+        if(line[end] != ' ')
+            break;
+    }
+
+    return line.substr(start, (end - start) + 1);
+}
+
+std::string passTwo(){
+    bool more_input = true;         // flag that stops passTwo
+    std::string line, output = "";
+    int ilc;
+    const int END_STATEMENT = -2;   // signals end of input
+
+    ilc = 0; // assemble first instruction at 0
+
+    while (more_input) { // more input set to false by END
+        int size = getSize();
+        line = getNextLine();
+       
+        std::vector<std::string> tokens = getTokens(line);
+        std::string operador = tokens[0];
+        Instruction instruction = table.getInstruction(operador);
         
-//         line = readNextLine();
-//         std::vector<std::string> tokens = getTokens(line); // TODO: Checar meio de separar os tokens
-//         std::string oper = tokens[0];
-//         Instruction instruction = instTable.getInstruction(oper);
+        ilc += size; // update loc ctr
         
-//         ilc += instruction.getSize(); // update loc ctr
-        
-//         if (instruction.getOpCode() != END_STATEMENT) {
-//             if (instruction.getIsPseudo()){
-//                 if (instruction.getSize() == 1)
-//                     output += tokens[1];
-//             } else {
-//                 output += std::to_string(instruction.getOpCode());
+        if (instruction.getOpCode() != END_STATEMENT) {
+            if (instruction.getIsPseudo()){
+                if (size == 1)
+                    output += tokens[1];
+            } else {
+                output += std::to_string(instruction.getOpCode());
 
-//                 if (instruction.getSize() > 1)
-//                     output += " " + std::to_string(tabela[tokens[1]] - ilc); // TODO: Calcular endereço baseado na tabela gerada no passo 1
-//             }
-//             output += " ";
-//         } else 
-//             more_input = false;
+                if (size > 1)
+                    output += " " + std::to_string(symbolTable[tokens[1]] - ilc);
+                    
+            }
+            output += " ";
+        } else 
+            more_input = false;
 
-//     }
-// }
+    }
+    programSize = ilc;
+
+    return output;
+}
 
 int main () {
     passOne();
-
+    std::string program = passTwo();
+    std::string output = CABECALHO + " " + std::to_string(ENDERECO_INICIAL) + " " + std::to_string(PILHA_INICIAl) + " " + std::to_string(programSize) + " " + program;
+    cout << output;
     return 0;
 }

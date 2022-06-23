@@ -8,8 +8,8 @@
 using namespace std;
 
 class Instruction{
-    int8_t opCode;
-    uint8_t size;
+    int opCode;
+    int size;
     bool isPseudo;
 
     public:
@@ -17,14 +17,14 @@ class Instruction{
             
         }
 
-        Instruction(int8_t opCode, uint8_t size, bool isPseudo) {
+        Instruction(int opCode, int size, bool isPseudo) {
             this->opCode = opCode;
             this->size = size;
             this->isPseudo = isPseudo;
         }
 
-        int8_t getOpCode() {return opCode;}
-        uint8_t getSize() {return size;}
+        int getOpCode() {return opCode;}
+        int getSize() {return size;}
         bool getIsPseudo() {return isPseudo;}
 
 };
