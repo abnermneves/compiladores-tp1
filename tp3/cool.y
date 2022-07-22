@@ -73,10 +73,11 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* You will want to change the following line. */
 %type <features> feature_list
-/* %type <feature> feature
+%type <feature> feature
 %type <formals> formal_list
-%type <formal> formal */
+%type <formal> formal
 %type <expression> expr
+%type <expressions> expr_list
 %type <case_> case
 %type <cases> case_list
 
@@ -109,38 +110,45 @@ class	: CLASS TYPEID '{' feature_list '}' ';'
 
 /* Feature list may be empty, but no empty features in list. */
 feature_list :		/* empty */
-  |
     {  $$ = nil_Features(); }
-  /* | feature feature_list
-    { } */
+  | feature ';'
+    { $$ = single_Features($1); }
+  | feature ';' feature_list
+    { $$ = append_Features($1, $3); }
   ;
 
-/* feature : 
-  | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
-    { $$ = feature($1, $3, $6, $8); }
+feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
+    { $$ = method($1, $3, $6, $8); }
   | OBJECTID ':' TYPEID ASSIGN expr
-    { }
-  | OBJECTID ':' TYPEID
-    { }
+    { $$ = attr($1, $3, $5); }
+  | formal
+    { $$ = formal($1, $3); }
+
+formal : OBJECTID ':' TYPEID
+    { $$ = formal($1, $3); }
   ;
 
-formal : 
-  | OBJECTID ':' TYPEID
+formal_list : /* vazio */
+    { $$ = nil_Formals(); }
+  | formal
+    { $$ = single_Formals($1); }
+  | formal ',' formal_list
+    { $$ = append_Formals(single_Formals($1), $3); }
   ;
 
-formal_list : 
-  |
-*/
-
-expr_list :
-  | expr expr_list
+expr_list : /* vazio */
+    { $$ = nil_Expressions(); }
+  | expr
+    { $$ = single_Expressions($1); }
+  | expr ',' expr_list
+    { $$ = append_Expressions(single_Expressions($1), $2); }
   ;
 
 nested_let :
-  | OBJECTID ':' TYPEID ASSIGN expr nested_let
-    { }
+  | OBJECTID ':' TYPEID ASSIGN expr ',' nested_let
+    { } /* ------------------------------------------- FALTA AÇÃO AQUI  */
   | OBJECTID ':' TYPEID nested_let
-    { }
+    { } /* ------------------------------------------- FALTA AÇÃO AQUI  */
   ;
   
 case : OBJECTID ':' TYPEID DARROW expr
@@ -153,7 +161,6 @@ case_list :
   | case case_list
     { $$ = append_Cases($2, single_Cases($1)); }
   ;
-
 
 expr : 
   | OBJECTID ASSIGN expr
