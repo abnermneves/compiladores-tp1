@@ -77,6 +77,8 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %type <formals> formal_list
 %type <formal> formal */
 %type <expression> expr
+%type <case_> case
+%type <cases> case_list
 
 /* Precedence declarations go here. */
 
@@ -130,15 +132,80 @@ formal_list :
   |
 */
 
+expr_list :
+  | expr expr_list
+  ;
+
+nested_let :
+  | OBJECTID ':' TYPEID ASSIGN expr nested_let
+    { }
+  | OBJECTID ':' TYPEID nested_let
+    { }
+  ;
+  
+case : OBJECTID ':' TYPEID DARROW expr
+    { $$ = branch($1, $3, $5); }
+  ;
+
+case_list :
+  | case
+    { $$ = single_Cases($1); }
+  | case case_list
+    { $$ = append_Cases($2, single_Cases($1)); }
+  ;
+
+
 expr : 
   | OBJECTID ASSIGN expr
-    { $$ = assign($1, $3) }
-  /* FALTA AS LINHAS 2 E 3 DA GRAMÁTICA */
+    { $$ = assign($1, $3); }
+  | expr '@' TYPEID '.' OBJECTID '(' expr_list ')'
+    { $$ = static_dispatch($1, $3, $5, $7); }
+  | expr '.' OBJECTID '(' expr_list ')'
+    { $$ = dispatch($1, $3, $5); }
+  | OBJECTID '(' expr_list ')'
+    { } /* ------------------------------------ FALTA AÇÃO AQUI  */
   | IF expr THEN expr ELSE expr FI
-    { $$ = cond($2, $4, $6) }
+    { $$ = cond($2, $4, $6); }
   | WHILE expr LOOP expr POOL
-    { $$ = loop($2, $4) }
-  /* FALTA UMA LINHA COM { [[ EXPR;]]+ } */
+    { $$ = loop($2, $4); }
+  | '{' expr_list '}'
+    { $$ = block($2); }
+  | LET nested_let IN expr
+    { $$ = $2; }
+  | CASE expr OF case_list ESAC
+    { $$ = typcase($2, $4); }
+  | NEW TYPEID
+    { $$ = new_($2); }
+  | ISVOID expr
+    { $$ = isvoid($2); }
+  | expr '+' expr
+    { $$ = plus($1, $3); }
+  | expr '-' expr
+    { $$ = sub($1, $3); }
+  | expr '*' expr
+    { $$ = mul($1, $3); }
+  | expr '/' expr
+    { $$ = divide($1, $3); }
+  | '~' expr
+    { $$ = neg($2); }
+  | expr '<' expr
+    { $$ = lt($1, $3); }
+  | expr LE expr
+    { $$ = leq($1, $3); }
+  | expr '=' expr
+    { $$ = eq($1, $3); }
+  | NOT expr
+    { $$ = comp($2); }
+  | '(' expr ')'
+    { $$ = $2; }
+  | OBJECTID
+    { $$ = object($1); }
+  | INT_CONST
+    { $$ = int_const($1); }
+  | STR_CONST
+    { $$ = string_const($1); }
+  | BOOL_CONST
+    { $$ = bool_const($1); }
   ;
 
 
