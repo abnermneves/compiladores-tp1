@@ -1,3 +1,11 @@
+Não terminais inúteis na gramática
+
+    feature
+    formal_list
+    formal
+    expr
+
+
 Terminais sem uso na gramática
 
     ELSE
@@ -25,6 +33,15 @@ Terminais sem uso na gramática
     ERROR
 
 
+Regras inúteis no analisador por causa de conflitos
+
+    7 feature_list: %empty
+
+
+Estado 9 conflitos: 1 de redução/redução
+Estado 12 conflitos: 1 de redução/redução
+
+
 Gramática
 
     0 $accept: program $end
@@ -34,10 +51,11 @@ Gramática
     2 class_list: class
     3           | class_list class
 
-    4 class: CLASS TYPEID '{' dummy_feature_list '}' ';'
-    5      | CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';'
+    4 class: CLASS TYPEID '{' feature_list '}' ';'
+    5      | CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
 
-    6 dummy_feature_list: %empty
+    6 feature_list: %empty
+    7             | %empty
 
 
 Terminais, com as regras onde eles aparecem
@@ -88,8 +106,8 @@ Não terminais com as regras onde eles aparecem
     class <class_> (35)
         à esquerda: 4 5
         à direita: 2 3
-    dummy_feature_list <features> (36)
-        à esquerda: 6
+    feature_list <features> (36)
+        à esquerda: 6 7
         à direita: 4 5
 
 
@@ -106,8 +124,8 @@ Estado 0
 
 Estado 1
 
-    4 class: CLASS . TYPEID '{' dummy_feature_list '}' ';'
-    5      | CLASS . TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';'
+    4 class: CLASS . TYPEID '{' feature_list '}' ';'
+    5      | CLASS . TYPEID INHERITS TYPEID '{' feature_list '}' ';'
 
     TYPEID  deslocar, e ir ao estado 5
 
@@ -140,8 +158,8 @@ Estado 4
 
 Estado 5
 
-    4 class: CLASS TYPEID . '{' dummy_feature_list '}' ';'
-    5      | CLASS TYPEID . INHERITS TYPEID '{' dummy_feature_list '}' ';'
+    4 class: CLASS TYPEID . '{' feature_list '}' ';'
+    5      | CLASS TYPEID . INHERITS TYPEID '{' feature_list '}' ';'
 
     INHERITS  deslocar, e ir ao estado 8
     '{'       deslocar, e ir ao estado 9
@@ -163,73 +181,77 @@ Estado 7
 
 Estado 8
 
-    5 class: CLASS TYPEID INHERITS . TYPEID '{' dummy_feature_list '}' ';'
+    5 class: CLASS TYPEID INHERITS . TYPEID '{' feature_list '}' ';'
 
     TYPEID  deslocar, e ir ao estado 10
 
 
 Estado 9
 
-    4 class: CLASS TYPEID '{' . dummy_feature_list '}' ';'
+    4 class: CLASS TYPEID '{' . feature_list '}' ';'
 
-    $padrão  reduzir usando a regra 6 (dummy_feature_list)
+    '}'       reduzir usando a regra 6 (feature_list)
+    '}'       [reduzir usando a regra 7 (feature_list)]
+    $padrão  reduzir usando a regra 6 (feature_list)
 
-    dummy_feature_list  ir ao estado 11
+    feature_list  ir ao estado 11
 
 
 Estado 10
 
-    5 class: CLASS TYPEID INHERITS TYPEID . '{' dummy_feature_list '}' ';'
+    5 class: CLASS TYPEID INHERITS TYPEID . '{' feature_list '}' ';'
 
     '{'  deslocar, e ir ao estado 12
 
 
 Estado 11
 
-    4 class: CLASS TYPEID '{' dummy_feature_list . '}' ';'
+    4 class: CLASS TYPEID '{' feature_list . '}' ';'
 
     '}'  deslocar, e ir ao estado 13
 
 
 Estado 12
 
-    5 class: CLASS TYPEID INHERITS TYPEID '{' . dummy_feature_list '}' ';'
+    5 class: CLASS TYPEID INHERITS TYPEID '{' . feature_list '}' ';'
 
-    $padrão  reduzir usando a regra 6 (dummy_feature_list)
+    '}'       reduzir usando a regra 6 (feature_list)
+    '}'       [reduzir usando a regra 7 (feature_list)]
+    $padrão  reduzir usando a regra 6 (feature_list)
 
-    dummy_feature_list  ir ao estado 14
+    feature_list  ir ao estado 14
 
 
 Estado 13
 
-    4 class: CLASS TYPEID '{' dummy_feature_list '}' . ';'
+    4 class: CLASS TYPEID '{' feature_list '}' . ';'
 
     ';'  deslocar, e ir ao estado 15
 
 
 Estado 14
 
-    5 class: CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list . '}' ';'
+    5 class: CLASS TYPEID INHERITS TYPEID '{' feature_list . '}' ';'
 
     '}'  deslocar, e ir ao estado 16
 
 
 Estado 15
 
-    4 class: CLASS TYPEID '{' dummy_feature_list '}' ';' .
+    4 class: CLASS TYPEID '{' feature_list '}' ';' .
 
     $padrão  reduzir usando a regra 4 (class)
 
 
 Estado 16
 
-    5 class: CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' . ';'
+    5 class: CLASS TYPEID INHERITS TYPEID '{' feature_list '}' . ';'
 
     ';'  deslocar, e ir ao estado 17
 
 
 Estado 17
 
-    5 class: CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';' .
+    5 class: CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';' .
 
     $padrão  reduzir usando a regra 5 (class)

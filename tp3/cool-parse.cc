@@ -543,7 +543,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  7
+#define YYNRULES  8
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  18
 
@@ -595,7 +595,7 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    84,    84,    88,    91,    97,   100,   106
+       0,    88,    88,    92,    95,   101,   104,   109,   111
 };
 #endif
 
@@ -608,7 +608,7 @@ static const char *const yytname[] =
   "INHERITS", "LET", "LOOP", "POOL", "THEN", "WHILE", "CASE", "ESAC", "OF",
   "DARROW", "NEW", "ISVOID", "STR_CONST", "INT_CONST", "BOOL_CONST",
   "TYPEID", "OBJECTID", "ASSIGN", "NOT", "LE", "ERROR", "'{'", "'}'",
-  "';'", "$accept", "program", "class_list", "class", "dummy_feature_list", YY_NULLPTR
+  "';'", "$accept", "program", "class_list", "class", "feature_list", YY_NULLPTR
 };
 #endif
 
@@ -691,13 +691,13 @@ static const yytype_int8 yystos[] =
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    32,    33,    34,    34,    35,    35,    36
+       0,    32,    33,    34,    34,    35,    35,    36,    36
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     6,     8,     0
+       0,     2,     1,     1,     2,     6,     8,     0,     0
 };
 
 
@@ -1393,41 +1393,41 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 84 "cool.y"
+#line 88 "cool.y"
                         { ast_root = program((yyvsp[0].classes)); }
 #line 1399 "cool.tab.c"
     break;
 
   case 3:
-#line 89 "cool.y"
+#line 93 "cool.y"
                 { (yyval.classes) = single_Classes((yyvsp[0].class_));
                   parse_results = (yyval.classes); }
 #line 1406 "cool.tab.c"
     break;
 
   case 4:
-#line 92 "cool.y"
+#line 96 "cool.y"
                 { (yyval.classes) = append_Classes((yyvsp[-1].classes),single_Classes((yyvsp[0].class_))); 
                   parse_results = (yyval.classes); }
 #line 1413 "cool.tab.c"
     break;
 
   case 5:
-#line 98 "cool.y"
+#line 102 "cool.y"
                 { (yyval.class_) = class_((yyvsp[-4].symbol),idtable.add_string("Object"),(yyvsp[-2].features),
 			      stringtable.add_string(curr_filename)); }
 #line 1420 "cool.tab.c"
     break;
 
   case 6:
-#line 101 "cool.y"
+#line 105 "cool.y"
                 { (yyval.class_) = class_((yyvsp[-6].symbol),(yyvsp[-4].symbol),(yyvsp[-2].features),stringtable.add_string(curr_filename)); }
 #line 1426 "cool.tab.c"
     break;
 
-  case 7:
-#line 106 "cool.y"
-                {  (yyval.features) = nil_Features(); }
+  case 8:
+#line 111 "cool.y"
+    {  (yyval.features) = nil_Features(); }
 #line 1432 "cool.tab.c"
     break;
 
@@ -1664,7 +1664,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 110 "cool.y"
+#line 135 "cool.y"
 
 
 /* This function is called automatically when Bison detects a parse error. */
