@@ -94,20 +94,28 @@ class_list
 	;
 
 /* If no parent is specified, the class inherits from the Object class. */
-class	: CLASS TYPEID '{' dummy_feature_list '}' ';'
+class	: CLASS TYPEID '{' feature_list '}' ';'
 		{ $$ = class_($2,idtable.add_string("Object"),$4,
 			      stringtable.add_string(curr_filename)); }
-	| CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';'
+	| CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
 		{ $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
 	;
 
 /* Feature list may be empty, but no empty features in list. */
-dummy_feature_list:		/* empty */
-                {  $$ = nil_Features(); }
+feature_list :		/* empty */
+  |
+    {  $$ = nil_Features(); }
+  | feature feature_list
+    { }
+  ;
 
 feature : 
   | OBJECTID '(' formals_list ')' ':' TYPEID '{' expr '}'
-  | OBJECTID ':' TYPEID '[' ASSIGN expr ']'
+    { $$ = feature($1, $3, $6, $8); }
+  | OBJECTID ':' TYPEID ASSIGN expr
+    { }
+  | OBJECTID ':' TYPEID
+    { }
   ;
 
 formal : 
@@ -115,6 +123,7 @@ formal :
   ;
 
 formals_list : 
+  |
 
 expr :
 
