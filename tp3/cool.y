@@ -109,11 +109,11 @@ class	: CLASS TYPEID '{' feature_list '}' ';'
 feature_list :		/* empty */
   |
     {  $$ = nil_Features(); }
-  | feature feature_list
-    { }
+  /* | feature feature_list
+    { } */
   ;
 
-feature : 
+/* feature : 
   | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
     { $$ = feature($1, $3, $6, $8); }
   | OBJECTID ':' TYPEID ASSIGN expr
@@ -129,7 +129,7 @@ formal :
 formal_list : 
   |
 
-expr :
+expr : */
 
 /* end of grammar */
 %%
