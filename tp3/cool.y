@@ -128,8 +128,20 @@ formal :
 
 formal_list : 
   |
+*/
 
-expr : */
+expr : 
+  | 
+  | OBJECTID ASSIGN expr
+    { }
+  /* FALTA AS LINHAS 2 E 3 DA GRAMÁTICA */
+  | IF expr THEN expr ELSE expr FI
+    { $$ = cond($2, $4, $6) }
+  | WHILE expr LOOP expr POOL
+    { $$ = loop($1, $2) }
+  /* FALTA UMA LINHA COM { [[ EXPR;]]+ } */
+  ;
+
 
 /* end of grammar */
 %%
