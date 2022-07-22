@@ -73,9 +73,9 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* You will want to change the following line. */
 %type <features> feature_list
-%type <feature> feature
+/* %type <feature> feature
 %type <formals> formal_list
-%type <formal> formal
+%type <formal> formal */
 %type <expression> expr
 
 /* Precedence declarations go here. */
@@ -131,14 +131,13 @@ formal_list :
 */
 
 expr : 
-  | 
   | OBJECTID ASSIGN expr
-    { }
+    { $$ = assign($1, $3) }
   /* FALTA AS LINHAS 2 E 3 DA GRAMÁTICA */
   | IF expr THEN expr ELSE expr FI
     { $$ = cond($2, $4, $6) }
   | WHILE expr LOOP expr POOL
-    { $$ = loop($1, $2) }
+    { $$ = loop($2, $4) }
   /* FALTA UMA LINHA COM { [[ EXPR;]]+ } */
   ;
 
