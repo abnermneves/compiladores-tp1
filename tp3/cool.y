@@ -72,7 +72,11 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %type <class_> class
 
 /* You will want to change the following line. */
-%type <features> dummy_feature_list
+%type <features> feature_list
+%type <feature> feature
+%type <formals> formal_list
+%type <formal> formal
+%type <expression> expr
 
 /* Precedence declarations go here. */
 
@@ -110,7 +114,7 @@ feature_list :		/* empty */
   ;
 
 feature : 
-  | OBJECTID '(' formals_list ')' ':' TYPEID '{' expr '}'
+  | OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
     { $$ = feature($1, $3, $6, $8); }
   | OBJECTID ':' TYPEID ASSIGN expr
     { }
@@ -122,7 +126,7 @@ formal :
   | OBJECTID ':' TYPEID
   ;
 
-formals_list : 
+formal_list : 
   |
 
 expr :
