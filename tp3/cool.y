@@ -105,6 +105,18 @@ class	: CLASS TYPEID '{' dummy_feature_list '}' ';'
 dummy_feature_list:		/* empty */
                 {  $$ = nil_Features(); }
 
+feature : 
+  | OBJECTID '(' formals_list ')' ':' TYPEID '{' expr '}'
+  | OBJECTID ':' TYPEID '[' ASSIGN expr ']'
+  ;
+
+formal : 
+  | OBJECTID ':' TYPEID
+  ;
+
+formals_list : 
+
+expr :
 
 /* end of grammar */
 %%
