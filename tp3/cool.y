@@ -122,10 +122,10 @@ class	: CLASS TYPEID '{' feature_list '}' ';'
 /* Feature list may be empty, but no empty features in list. */
 feature_list :		/* empty */
     {  $$ = nil_Features(); }
-  | feature ';'
-    { $$ = single_Features($1); }
   | feature ';' feature_list
     { $$ = append_Features(single_Features($1), $3); }
+  | feature ';'
+    { $$ = single_Features($1); }
   ;
 
 feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
@@ -175,10 +175,10 @@ case : OBJECTID ':' TYPEID DARROW expr
 
 case_list :
     { $$ = nil_Cases(); }
-  | case
-    { $$ = single_Cases($1); }
   | case case_list
     { $$ = append_Cases($2, single_Cases($1)); }
+  | case
+    { $$ = single_Cases($1); }
   ;
 
 expr : OBJECTID ASSIGN expr

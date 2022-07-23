@@ -1,7 +1,7 @@
 ASSN = 3
 CLASS= dcc053
 CLASSDIR= /home/prof/renato/cool/student
-LIB= -L/usr/lib -lfl -Wl,-rpath=/usr/lib
+LIB= -L/usr/lib -lfl -Wl,-rpath,/usr/lib
 AR= ar
 ARCHIVE_NEW= -cr
 RANLIB= ar -qs
