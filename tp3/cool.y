@@ -85,6 +85,15 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* Precedence declarations go here. */
 
+%right ASSIGN
+%left NOT
+%nonassoc LE '<' '='
+%left '+' '-'
+%left '*' '/'
+%left 'isvoid'
+%left '~'
+%left '@'
+%left '.'
 
 %%
 /* 
