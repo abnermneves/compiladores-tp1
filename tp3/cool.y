@@ -152,7 +152,7 @@ expr_list : /* vazio */
   | expr
     { $$ = single_Expressions($1); }
   | expr ',' expr_list
-    { $$ = append_Expressions(single_Expressions($1), $2); }
+    { $$ = append_Expressions(single_Expressions($1), $3); }
   ;
 
 nested_let : /* Recursividade a direita pra achar os valores das expressões */
