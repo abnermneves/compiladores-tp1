@@ -146,7 +146,7 @@ expr_list : /* vazio */
     { $$ = append_Expressions(single_Expressions($1), $2); }
   ;
 
-nested_let : // Recursividade a direita pra achar os valores das expressões
+nested_let : /* Recursividade a direita pra achar os valores das expressões */
   | OBJECTID ':' TYPEID u_let ',' nested_let
     { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
   | OBJECTID ':' TYPEID u_let IN expr
