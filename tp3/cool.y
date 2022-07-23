@@ -90,7 +90,7 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %nonassoc LE '<' '='
 %left '+' '-'
 %left '*' '/'
-%left 'isvoid'
+%left ISVOID
 %left '~'
 %left '@'
 %left '.'
@@ -132,7 +132,7 @@ feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
     { $$ = method($1, $3, $6, $8); }
   | OBJECTID ':' TYPEID ASSIGN expr
     { $$ = attr($1, $3, $5); }
-  | formal
+  | OBJECTID ':' TYPEID
     { $$ = formal($1, $3); }
 
 formal : OBJECTID ':' TYPEID
@@ -156,15 +156,14 @@ expr_list : /* vazio */
   ;
 
 nested_let : /* Recursividade a direita pra achar os valores das expressões */
-  | OBJECTID ':' TYPEID u_let ',' nested_let
+    OBJECTID ':' TYPEID u_let ',' nested_let
     { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
   | OBJECTID ':' TYPEID u_let IN expr
     { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
   | error ',' { yyerrok; }
   ;
 
-u_let  :
-  | ASSIGN expr
+u_let : ASSIGN expr
     { $$ = $2; }
   |
     { ; }
@@ -175,14 +174,14 @@ case : OBJECTID ':' TYPEID DARROW expr
   ;
 
 case_list :
+    { $$ = nil_Cases(); }
   | case
     { $$ = single_Cases($1); }
   | case case_list
     { $$ = append_Cases($2, single_Cases($1)); }
   ;
 
-expr : 
-  | OBJECTID ASSIGN expr
+expr : OBJECTID ASSIGN expr
     { $$ = assign($1, $3); }
   | expr '@' TYPEID '.' OBJECTID '(' expr_list ')'
     { $$ = static_dispatch($1, $3, $5, $7); }
