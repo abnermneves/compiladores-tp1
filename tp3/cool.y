@@ -125,7 +125,7 @@ feature_list :		/* empty */
   | feature ';'
     { $$ = single_Features($1); }
   | feature ';' feature_list
-    { $$ = append_Features($1, $3); }
+    { $$ = append_Features(single_Features($1), $3); }
   ;
 
 feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
@@ -133,7 +133,7 @@ feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
   | OBJECTID ':' TYPEID ASSIGN expr
     { $$ = attr($1, $3, $5); }
   | OBJECTID ':' TYPEID
-    { $$ = formal($1, $3); }
+    { $$ = attr($1, $3, no_expr()); }
 
 formal : OBJECTID ':' TYPEID
     { $$ = formal($1, $3); }
@@ -188,7 +188,7 @@ expr : OBJECTID ASSIGN expr
   | expr '.' OBJECTID '(' expr_list ')'
     { $$ = dispatch($1, $3, $5); }
   | OBJECTID '(' expr_list ')'
-    { $$ = dispatch( object(idtable.add_string((char*) "self")), $1, $3) ); } /* ------------------------------------ FALTA AÇÃO AQUI  */
+    { $$ = dispatch( object(idtable.add_string((char*) "self")), $1, $3); } /* ------------------------------------ FALTA AÇÃO AQUI  */
   | IF expr THEN expr ELSE expr FI
     { $$ = cond($2, $4, $6); }
   | WHILE expr LOOP expr POOL
