@@ -164,7 +164,7 @@ nested_let : /* Recursividade a direita pra achar os valores das expressões */
   ;
 
 u_let  :
-  | ASSIGN expression 
+  | ASSIGN expr
     { $$ = $2; }
   |
     { ; }
