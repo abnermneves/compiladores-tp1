@@ -80,6 +80,8 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %type <expressions> expr_list
 %type <case_> case
 %type <cases> case_list
+%type <expression> nested_let 
+%type <expression> u_let 
 
 /* Precedence declarations go here. */
 
@@ -144,13 +146,21 @@ expr_list : /* vazio */
     { $$ = append_Expressions(single_Expressions($1), $2); }
   ;
 
-nested_let :
-  | OBJECTID ':' TYPEID ASSIGN expr ',' nested_let
-    { } /* ------------------------------------------- FALTA AÇÃO AQUI  */
-  | OBJECTID ':' TYPEID nested_let
-    { } /* ------------------------------------------- FALTA AÇÃO AQUI  */
+nested_let : // Recursividade a direita pra achar os valores das expressões
+  | OBJECTID ':' TYPEID u_let ',' nested_let
+    { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
+  | OBJECTID ':' TYPEID u_let IN expr
+    { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
+  | error ',' { yyerrok; }
   ;
-  
+
+u_let  :
+  | ASSIGN expression 
+    { $$ = $2; }
+  |
+    { ; }
+  ;
+
 case : OBJECTID ':' TYPEID DARROW expr
     { $$ = branch($1, $3, $5); }
   ;
@@ -170,14 +180,14 @@ expr :
   | expr '.' OBJECTID '(' expr_list ')'
     { $$ = dispatch($1, $3, $5); }
   | OBJECTID '(' expr_list ')'
-    { } /* ------------------------------------ FALTA AÇÃO AQUI  */
+    { $$ = dispatch( object(idtable.add_string((char*) "self")), $1, $3) ); } /* ------------------------------------ FALTA AÇÃO AQUI  */
   | IF expr THEN expr ELSE expr FI
     { $$ = cond($2, $4, $6); }
   | WHILE expr LOOP expr POOL
     { $$ = loop($2, $4); }
   | '{' expr_list '}'
     { $$ = block($2); }
-  | LET nested_let IN expr
+  | LET nested_let
     { $$ = $2; }
   | CASE expr OF case_list ESAC
     { $$ = typcase($2, $4); }
