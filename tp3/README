@@ -142,3 +142,19 @@ Instructions
 
 Write-up for PA3
 ----------------
+
+Este trabalho visa implementar um parser para a linguagem Cool. 
+No arquivo cool.y, implementamos as funções que declaram os tipos não-terminais da gramática da linguagem, de acordo com as especificações da seção 12 
+do cool-manual e utilizando as funções primitivas já implementadas no arquivo cool-tree.h. Houve alguma dificuldade na implementação dos construtos let e id usando 
+listas de expressões, devido à ausência de limitações de casos possíveis (determinado pelo operador '*' na expressão regular que define os tipos, 
+sobretudo no caso do let, que, internamente, quando definidas múltiplas expressões no seu corpo, é tratado como uma chamada em currying. Optamos por 
+dividi-la em um tipo base (u_let) e um generalizado (nested_let), e tratamos os dois separadamente. 
+
+Além disso, também incluímos as regras de precedência para os operadores unários e binários, em acordo com o disposto na seção 11.1 do manual. 
+O tratamento de erros foi feito para os casos onde XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Para isso, utilizamos como casos de teste, no arquivo good.cl, declarações simples e bem-formadas de uma classe A, que apenas atribui um valor a uma variável dentro 
+de uma expressão matemática simples e uma declaração subsequente de uma classe BB, que herda os atributos de A. Já no arquivo bad.cl, modificamos as declarações
+de algumas formas defectivas: XXXXXXXXXXXXXXXXXXXXXX
+
+Tendo isso em vista, e da a escolha de casos de teste com erros propositalmente incluídos, acreditamos que nosso código tenha capacidade de captar a maioria dos erros
+em arquivos em Cool, bem como de reconhecer a corretude de programas que se conformam com as regras gramaticais da linguagem. 
