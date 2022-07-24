@@ -78,6 +78,8 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 %type <formal> formal
 %type <expression> expr
 %type <expressions> expr_list
+%type <expression> argument
+%type <expressions> argument_list
 %type <case_> case
 %type <cases> case_list
 %type <expression> nested_let 
@@ -99,41 +101,50 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 /* 
    Save the root of the abstract syntax tree in a global variable.
 */
-program	: class_list	{ ast_root = program($1); }
-        ;
+
+program	: class_list	
+  { ast_root = program($1); }
+  ;
 
 class_list
 	: class			/* single class */
 		{ $$ = single_Classes($1);
                   parse_results = $$; }
 	| class_list class	/* several classes */
-		{ $$ = append_Classes($1,single_Classes($2)); 
+		{ $$ = append_Classes($1, single_Classes($2)); 
                   parse_results = $$; }
+  | error ';' 
+    { yyerrok; }
 	;
 
 /* If no parent is specified, the class inherits from the Object class. */
 class	: CLASS TYPEID '{' feature_list '}' ';'
-		{ $$ = class_($2,idtable.add_string("Object"),$4,
+		{ $$ = class_($2, idtable.add_string((char*) "Object"), $4,
 			      stringtable.add_string(curr_filename)); }
 	| CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
-		{ $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
+		{ $$ = class_($2, $4, $6, stringtable.add_string(curr_filename)); }
 	;
 
 /* Feature list may be empty, but no empty features in list. */
 feature_list :		/* empty */
     {  $$ = nil_Features(); }
-  | feature ';' feature_list
-    { $$ = append_Features(single_Features($1), $3); }
-  | feature ';'
+  | feature_list feature 
+    { $$ = append_Features($1, single_Features($2)); }
+  | feature
     { $$ = single_Features($1); }
   ;
 
-feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}'
+feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}' ';'
     { $$ = method($1, $3, $6, $8); }
-  | OBJECTID ':' TYPEID ASSIGN expr
+  | OBJECTID ':' TYPEID ASSIGN expr ';'
     { $$ = attr($1, $3, $5); }
-  | OBJECTID ':' TYPEID
+  | OBJECTID ':' TYPEID ASSIGN '{' expr '}' ';'
+    { $$ = attr($1, $3, $6); }
+  | OBJECTID ':' TYPEID ';'
     { $$ = attr($1, $3, no_expr()); }
+  | error ';' 
+    { yyerrok; }
+  ;
 
 formal : OBJECTID ':' TYPEID
     { $$ = formal($1, $3); }
@@ -143,16 +154,8 @@ formal_list : /* vazio */
     { $$ = nil_Formals(); }
   | formal
     { $$ = single_Formals($1); }
-  | formal ',' formal_list
-    { $$ = append_Formals(single_Formals($1), $3); }
-  ;
-
-expr_list : /* vazio */
-    { $$ = nil_Expressions(); }
-  | expr
-    { $$ = single_Expressions($1); }
-  | expr ',' expr_list
-    { $$ = append_Expressions(single_Expressions($1), $3); }
+  | formal_list ',' formal
+    { $$ = append_Formals($1, single_Formals($3)); }
   ;
 
 nested_let : /* Recursividade a direita pra achar os valores das expressões */
@@ -169,7 +172,7 @@ u_let : ASSIGN expr
     { ; }
   ;
 
-case : OBJECTID ':' TYPEID DARROW expr
+case : OBJECTID ':' TYPEID DARROW expr ';'
     { $$ = branch($1, $3, $5); }
   ;
 
@@ -181,14 +184,45 @@ case_list :
     { $$ = single_Cases($1); }
   ;
 
+expr_list : /* vazio */
+    { $$ = nil_Expressions(); }
+  | expr ';'
+    { $$ = single_Expressions($1); }
+  | expr_list expr ';'
+    { $$ = append_Expressions($1, single_Expressions($2)); }
+  ;
+
+argument: /* vazio */
+    { $$ = no_expr(); }
+  | expr
+    { $$ = $1; }
+
+  ;
+
+argument_list : argument
+    { $$ = single_Expressions($1); }
+  | argument ',' argument_list
+    { $$ = append_Expressions(single_Expressions($1), $3); }
+  ;
+
 expr : OBJECTID ASSIGN expr
     { $$ = assign($1, $3); }
-  | expr '@' TYPEID '.' OBJECTID '(' expr_list ')'
+
+  /*
+    Dispatch
+  */
+
+  | expr '@' TYPEID '.' OBJECTID '(' argument_list ')'
     { $$ = static_dispatch($1, $3, $5, $7); }
-  | expr '.' OBJECTID '(' expr_list ')'
+  | expr '.' OBJECTID '(' argument_list ')'
     { $$ = dispatch($1, $3, $5); }
-  | OBJECTID '(' expr_list ')'
-    { $$ = dispatch( object(idtable.add_string((char*) "self")), $1, $3); } /* ------------------------------------ FALTA AÇÃO AQUI  */
+  | OBJECTID '(' argument_list ')'
+    { $$ = dispatch( object(idtable.add_string((char*) "self")), $1, $3); } 
+
+  /*
+    End dispatch
+  */
+
   | IF expr THEN expr ELSE expr FI
     { $$ = cond($2, $4, $6); }
   | WHILE expr LOOP expr POOL
