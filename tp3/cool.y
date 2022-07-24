@@ -113,8 +113,6 @@ class_list
 	| class_list class	/* several classes */
 		{ $$ = append_Classes($1, single_Classes($2)); 
                   parse_results = $$; }
-  | error ';' 
-    { yyerrok; }
 	;
 
 /* If no parent is specified, the class inherits from the Object class. */
@@ -123,6 +121,8 @@ class	: CLASS TYPEID '{' feature_list '}' ';'
 			      stringtable.add_string(curr_filename)); }
 	| CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
 		{ $$ = class_($2, $4, $6, stringtable.add_string(curr_filename)); }
+  | error ';' 
+    {}
 	;
 
 /* Feature list may be empty, but no empty features in list. */
@@ -143,7 +143,7 @@ feature : OBJECTID '(' formal_list ')' ':' TYPEID '{' expr '}' ';'
   | OBJECTID ':' TYPEID ';'
     { $$ = attr($1, $3, no_expr()); }
   | error ';' 
-    { yyerrok; }
+    {}
   ;
 
 formal : OBJECTID ':' TYPEID
@@ -160,16 +160,17 @@ formal_list : /* vazio */
 
 nested_let : /* Recursividade a direita pra achar os valores das expressões */
     OBJECTID ':' TYPEID u_let ',' nested_let
-    { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
+    { $$ = let($1, $3, $4, $6); }
   | OBJECTID ':' TYPEID u_let IN expr
-    { $$ = let($1, $3, $4, $6); } /* ------------------------------------------- FALTA AÇÃO AQUI  */
-  | error ',' { yyerrok; }
+    { $$ = let($1, $3, $4, $6); }
   ;
 
 u_let : ASSIGN expr
     { $$ = $2; }
   |
     { ; }
+  | error ',' 
+    {}
   ;
 
 case : OBJECTID ':' TYPEID DARROW expr ';'

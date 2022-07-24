@@ -7,23 +7,27 @@
  *  generates
  *)
 
-(* no error *)
-class A {
+
+Class A {
 };
 
-(* error:  b is not a type identifier *)
-Class b inherits A {
+
+class B inherits a {
 };
 
-(* error:  a is not a type identifier *)
-Class C inherits a {
+class C {
+   foo():Int{{ 
+   	while True loop 1 pool;
+	while false looo 1 pool;
+    }};
 };
 
-(* error:  keyword inherits is misspelled *)
-Class D inherts A {
+class D {
+
+   foo:Int <- 25;
+   
+   foo(A:Int): Int  {
+      a - b
+   };
+    
 };
-
-(* error:  closing brace is missing *)
-Class E inherits A {
-;
-

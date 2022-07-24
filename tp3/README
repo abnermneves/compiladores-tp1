@@ -151,10 +151,12 @@ sobretudo no caso do let, que, internamente, quando definidas múltiplas express
 dividi-la em um tipo base (u_let) e um generalizado (nested_let), e tratamos os dois separadamente. 
 
 Além disso, também incluímos as regras de precedência para os operadores unários e binários, em acordo com o disposto na seção 11.1 do manual. 
-O tratamento de erros foi feito para os casos onde XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-Para isso, utilizamos como casos de teste, no arquivo good.cl, declarações simples e bem-formadas de uma classe A, que apenas atribui um valor a uma variável dentro 
-de uma expressão matemática simples e uma declaração subsequente de uma classe BB, que herda os atributos de A. Já no arquivo bad.cl, modificamos as declarações
-de algumas formas defectivas: XXXXXXXXXXXXXXXXXXXXXX
+Para isso, utilizamos como casos de teste de programas corretos os arquivos que se encontram na pasta examples no diretório dos trabalhos na máquina do professor. Já para programas com defeito utilizamos o arquivo bad.cl, modificamos as declarações de algumas formas defectivas: erros de digitação, troca de "case" (maiúscula pra minúscula e ao contrário), e outros erros.
 
 Tendo isso em vista, e da a escolha de casos de teste com erros propositalmente incluídos, acreditamos que nosso código tenha capacidade de captar a maioria dos erros
 em arquivos em Cool, bem como de reconhecer a corretude de programas que se conformam com as regras gramaticais da linguagem. 
+
+Membros do grupo:
+	Ábner de Marcos Neves, 2018054605
+	Arthur Yochio R. Codama, 2019006418
+	Hilário Corrêa Neto, 2019006701
